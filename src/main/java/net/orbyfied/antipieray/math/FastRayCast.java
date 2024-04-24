@@ -2,10 +2,8 @@ package net.orbyfied.antipieray.math;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
-import org.bukkit.World;
 
 public class FastRayCast {
 
@@ -15,7 +13,7 @@ public class FastRayCast {
         BlockState get(long x, long y, long z);
 
         // check if the block at the given pos is solid
-        boolean isSolid(long x, long y, long z);
+        boolean isOpaque(long x, long y, long z);
     }
 
     // block access implementation
@@ -38,7 +36,7 @@ public class FastRayCast {
         }
 
         @Override
-        public boolean isSolid(long x, long y, long z) {
+        public boolean isOpaque(long x, long y, long z) {
             // get chunk
             LevelChunk chunk = level.getChunk((int)(x >> 4), (int)(z >> 4));
             return chunk.getBlockState((int)(x % 16), (int)y, (int)(z % 16)).isOpaque(); // todo: isOpaque is paper api, avoid using
@@ -53,6 +51,7 @@ public class FastRayCast {
     public static final double STEP_SIZE_OPT_THRESHOLD_SQR = STEP_SIZE_OPT_THRESHOLD * STEP_SIZE_OPT_THRESHOLD;
 
     /**
+     * Checks whether position B is visible from position A, the origin.
      *
      * @param va Location A.
      * @param vb Location B.
@@ -60,7 +59,7 @@ public class FastRayCast {
      *                    the block states in certain positions.
      * @return If A can see B.
      */
-    public static boolean blockRayCastNonSolid(Vec3 va, Vec3 vb, BlockAccess blockAccess) {
+    public static boolean checkVisibilityOfPositionFromOrigin(Vec3 va, Vec3 vb, BlockAccess blockAccess) {
         // separate components of A and B
         // and order correctly, as certain
         // components of B might be smaller
@@ -83,17 +82,19 @@ public class FastRayCast {
         double dy = by - ay;
         double dz = bz - az;
         double mq = 1 / Math.max(dx, Math.max(dy, dz));
-        double qx = dx * mq;
-        double qy = dy * mq;
+        double qx;
+        double qy;
         double qz = dz * mq;
 
         // calculate largest step size
         // if the distance is worth optimizing
         // using sqr distance for performance
-        double dsq = dx * dx + dy * dy + dz * dz;
-        if (dsq > STEP_SIZE_OPT_THRESHOLD_SQR) {
-
-        }
+//        double dsq = dx * dx + dy * dy + dz * dz;
+//        if (dsq > STEP_SIZE_OPT_THRESHOLD_SQR) {
+            double n = Math.max(dx, dy);
+            qx = dx / n;
+            qy = dy / n;
+//        }
 
         // perform ray cast
         double cx = ax;
@@ -105,7 +106,7 @@ public class FastRayCast {
             long lcz = (long) cz;
 
             // check if solid
-            if (blockAccess.isSolid(lcx, lcy, lcz)) {
+            if (blockAccess.isOpaque(lcx, lcy, lcz)) {
                 return false; // can not see
             }
 
