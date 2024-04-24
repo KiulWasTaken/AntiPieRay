@@ -1,5 +1,6 @@
 package net.orbyfied.antipieray.listeners;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.orbyfied.antipieray.AntiPieRay;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
