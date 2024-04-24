@@ -427,7 +427,7 @@ public class PlayerBlockEntityHandler extends ChannelDuplexHandler {
         double x = packet.getX();
         double z = packet.getZ();
 
-        //updateChunkView((int)((long)x >> 4), (int)((long)z >> 4));
+        updateChunkView((int)((long)x >> 4), (int)((long)z >> 4));
     }
 
     /**
@@ -442,7 +442,7 @@ public class PlayerBlockEntityHandler extends ChannelDuplexHandler {
         double x = packet.getX(player.getX());
         double z = packet.getZ(player.getZ());
 
-        //updateChunkView((int)((long)x >> 4), (int)((long)z >> 4));
+        updateChunkView((int)((long)x >> 4), (int)((long)z >> 4));
     }
 
 }

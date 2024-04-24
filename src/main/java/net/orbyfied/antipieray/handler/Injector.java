@@ -5,13 +5,12 @@ import net.orbyfied.antipieray.AntiPieRay;
 import net.orbyfied.antipieray.util.NmsHelper;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
 
 public class Injector {
-
-    public static final String HANDLER_ID = "AntiPieRay_packet_handler";
 
     // the plugin
     final AntiPieRay plugin;
@@ -21,7 +20,7 @@ public class Injector {
     }
 
     // the packet handlers by player
-    final Map<UUID, PlayerBlockEntityHandler> handlerMap = new WeakHashMap<>();
+    final Map<UUID, PlayerBlockEntityHandler> handlerMap = new HashMap<>();
 
     /**
      * Instantiates, injects and enables the
@@ -38,7 +37,8 @@ public class Injector {
         handlerMap.put(player.getUniqueId(), packetHandler);
 
         // inject handler
-        nmsPlayer.connection.connection.channel.pipeline().addLast(HANDLER_ID, packetHandler);
+        nmsPlayer.connection.connection.channel.pipeline().addLast("AntiPieRay_packet_handler",
+                packetHandler);
     }
 
     /**
@@ -49,12 +49,7 @@ public class Injector {
      */
     public void uninject(Player player) {
         // remove handler
-        PlayerBlockEntityHandler handler = handlerMap.remove(player.getUniqueId());
-        handler.player.connection.connection.channel.pipeline().remove(handler);
-    }
-
-    public PlayerBlockEntityHandler getHandler(UUID uuid) {
-        return handlerMap.get(uuid);
+        handlerMap.remove(player.getUniqueId());
     }
 
     public PlayerBlockEntityHandler getHandler(Player player) {
